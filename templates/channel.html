@@ -1,0 +1,22 @@
+{{define "channel"}}
+<div>
+    <header>
+        {{.Name}}
+    </header>
+    <section>
+        {{with .Messages}}
+            {{range .}}
+                {{template "message" .}}
+            {{end}}
+        {{else}}
+            <p>No messages yet...</p>
+        {{end}}
+    </section>
+    <div>
+        <form action="/channel/{{.UUID}}" method="post" hx-post="/channel/{{.UUID}}" hx-target="main section" hx-swap="beforeend">
+            <textarea name="message"></textarea>
+            <button>Send</button>
+        </form>
+    </div>
+</div>
+{{end}}
