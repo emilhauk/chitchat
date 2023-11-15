@@ -8,6 +8,8 @@ import (
 	"net/url"
 )
 
+var log = config.Logger
+
 func NewConnectionPool(config config.DatabaseConfig) (*sql.DB, error) {
 	dataSourceParams := url.Values{}
 	dataSourceParams.Add("parseTime", "true")

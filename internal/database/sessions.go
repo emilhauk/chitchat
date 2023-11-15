@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"github.com/emilhauk/chitchat/internal/model"
-	"github.com/rs/zerolog/log"
 	"time"
 )
 

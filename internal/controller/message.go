@@ -28,7 +28,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		Content: content,
 	})
 	if err != nil {
-		log.Error().Err(err).Msgf("Failed to send message to channel=%s for user=s", channelUUID, user.UUID)
+		log.Error().Err(err).Msgf("Failed to send message to channel=%s for user=%s", channelUUID, user.UUID)
 
 		// TODO Decide how to handle this scenario. Sending message failed
 		app.Redirect(w, r, "/error/internal-server-error")

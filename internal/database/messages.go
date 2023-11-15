@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/emilhauk/chitchat/internal/model"
-	"github.com/rs/zerolog/log"
 	"time"
 )
 

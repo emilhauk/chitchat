@@ -5,7 +5,6 @@ import (
 	"errors"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
-	"github.com/rs/zerolog/log"
 	"time"
 )
 
