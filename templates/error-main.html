@@ -1,0 +1,16 @@
+{{define "error-main"}}
+<span class="error-main__code">{{.Code}}:</span>
+<span class="error-main__message">
+  {{with .Message}}
+    {{.}}
+  {{else}}
+    {{if .Code ge 500}}
+      Internal Server Error
+    {{else if .Code ge 400}}
+      Bad request
+    {{else}}
+      Wut..?
+    {{end}}
+  {{end}}
+</span>
+{{end}}

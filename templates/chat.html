@@ -26,10 +26,14 @@
         {{end}}
     </nav>
     <main>
-        {{with .Channel}}
-            {{template "channel" .}}
+        {{with .ErrorMain}}
+            {{template "error-main" .}}
         {{else}}
-            <p>Select channel from the menu, or <a href="/new-channel" hx-get="/new-channel" hx-push-url="true" hx-target="main" hx-swap="innerHTML">start a new one</a>.</p>
+            {{with .Channel}}
+                {{template "channel" .}}
+            {{else}}
+                <p>Select channel from the menu, or <a href="/new-channel" hx-get="/new-channel" hx-push-url="true" hx-target="main" hx-swap="innerHTML">start a new one</a>.</p>
+            {{end}}
         {{end}}
     </main>
 </body>

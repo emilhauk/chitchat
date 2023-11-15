@@ -1,0 +1,16 @@
+{{define "welcome"}}
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Chitchat</title>
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+    <h1>Hi</h1>
+    <p>This is Chitchat. Login to continue.</p>
+    {{template "login"}}
+</body>
+</html>
+{{end}}
