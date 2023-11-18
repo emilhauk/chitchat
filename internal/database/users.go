@@ -88,6 +88,9 @@ func (s Users) FindByEmail(email string) (model.User, error) {
 
 func (s Users) FindAllByUUIDs(userUUIDs ...string) (users map[string]model.User, err error) {
 	users = map[string]model.User{}
+	if len(userUUIDs) == 0 {
+		return users, err
+	}
 	query, args, err := sqlx.In(s.findAllByUUIDsSQL, userUUIDs)
 	if err != nil {
 		return users, err
