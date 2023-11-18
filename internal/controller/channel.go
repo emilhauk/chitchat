@@ -48,3 +48,39 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 		_ = templates.ExecuteTemplate(w, "chat", data)
 	}
 }
+
+func NewChannelForm(w http.ResponseWriter, r *http.Request) {
+	user := app.GetUserFromContextOrPanic(r.Context())
+	if app.IsHtmxRequest(r) {
+		_ = templates.ExecuteTemplate(w, "new-channel-form", map[string]any{})
+	} else {
+		channels, listErr := channelManager.GetChannelListForUser(user.UUID)
+		data := map[string]any{
+			"User":               user,
+			"Channels":           channels,
+			"ShowNewChannelForm": true,
+		}
+		if listErr != nil {
+			_ = templates.ExecuteTemplate(w, "error-page", map[string]any{"Code": 500})
+			return
+		}
+		_ = templates.ExecuteTemplate(w, "chat", data)
+	}
+}
+
+func CreateNewChannel(w http.ResponseWriter, r *http.Request) {
+	user := app.GetUserFromContextOrPanic(r.Context())
+	err := r.ParseForm()
+	if err != nil {
+		app.Redirect(w, r, "/error/bad-request")
+		return
+	}
+	name := r.FormValue("name")
+	channel, err := channelManager.Create(name, user)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to create channel for user=%s", user.UUID)
+		app.Redirect(w, r, "/error/internal-server-error")
+		return
+	}
+	app.Redirect(w, r, fmt.Sprintf("/im/channel/%s", channel.UUID))
+}

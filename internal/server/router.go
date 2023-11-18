@@ -32,6 +32,11 @@ func NewRouter(authMiddleware internalMiddleware.Auth) http.Handler {
 				r.Post("/message", controller.SendMessage)
 			})
 		})
+
+		r.Route("/new-channel", func(r chi.Router) {
+			r.Get("/", controller.NewChannelForm)
+			r.Post("/", controller.CreateNewChannel)
+		})
 	})
 
 	workDir, _ := os.Getwd()

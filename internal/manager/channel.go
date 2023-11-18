@@ -32,11 +32,15 @@ func (m Channel) GetChannelForUser(channelUUID, userUUID string) (model.Channel,
 	return m.channelBackend.FindForUser(channelUUID, userUUID)
 }
 
-func (m Channel) isMemberOfChannel(userUUID, channelUUID string) bool {
-	for _, c := range channels[userUUID] {
-		if c.UUID == channelUUID {
-			return true
-		}
+func (m Channel) Create(name string, user model.User) (model.Channel, error) {
+	channel := model.Channel{
+		UUID:      uuid.NewString(),
+		Name:      name,
+		CreatedAt: time.Now(),
 	}
-	return false
+	err := m.channelBackend.Create(channel)
+	if err == nil {
+		err = m.channelBackend.AddMember(channel, user, model.RoleAdmin)
+	}
+	return channel, err
 }
