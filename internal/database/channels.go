@@ -15,6 +15,8 @@ type Channels struct {
 	findByUUID     *sql.Stmt
 	findForUser    *sql.Stmt
 	findAllForUser *sql.Stmt
+
+	addMember *sql.Stmt
 }
 
 func NewChannelStore(db *sql.DB) Channels {
@@ -35,12 +37,18 @@ func NewChannelStore(db *sql.DB) Channels {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for channels.findAllForUser")
 	}
 
+	addMember, err := db.Prepare("INSERT INTO channel_members (channel_uuid, user_uuid, role, created_at) VALUE (?, ?, ?, ?)")
+	if err != nil {
+		log.Fatal().Err(err).Msgf("Failed to prepare statement for channels.addMember")
+	}
+
 	return Channels{
 		db:             db,
 		create:         create,
 		findByUUID:     findByUUID,
 		findForUser:    findForUser,
 		findAllForUser: findAllForUser,
+		addMember:      addMember,
 	}
 }
 
@@ -82,6 +90,11 @@ func (s Channels) FindAllForUser(userUUID string) ([]model.Channel, error) {
 		channels = append(channels, channel)
 	}
 	return channels, nil
+}
+
+func (s Channels) AddMember(channel model.Channel, user model.User, role model.ChannelRole) error {
+	_, err := s.addMember.Exec(channel.UUID, user.UUID, role, time.Now())
+	return err
 }
 
 func (s Channels) mapToChannel(row interface{ Scan(...any) error }) (model.Channel, error) {

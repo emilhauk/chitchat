@@ -2,27 +2,16 @@ package manager
 
 import (
 	"github.com/emilhauk/chitchat/internal/model"
+	"github.com/google/uuid"
+	"time"
 )
-
-var channels = map[string][]model.Channel{
-	"0-1-3": {
-		{
-			UUID:     "1-13-37",
-			Name:     "Project BEMRØ",
-			Messages: make([]model.Message, 0),
-		}, {
-			UUID:     "1-13-38",
-			Name:     "Haukeland",
-			Messages: make([]model.Message, 0),
-		},
-	},
-}
 
 type ChannelBackend interface {
 	Create(channel model.Channel) error
 	FindByUUID(uuid string) (model.Channel, error)
 	FindAllForUser(userUUID string) ([]model.Channel, error)
 	FindForUser(channelUUID, userUUID string) (model.Channel, error)
+	AddMember(channel model.Channel, user model.User, role model.ChannelRole) error
 }
 
 type Channel struct {
