@@ -25,6 +25,7 @@ func (m Message) Send(channel model.Channel, message model.Message) (model.Messa
 	message.UUID = uuid.NewString()
 	message.Version = 1
 	message.SentAt = time.Now()
+	message.Direction = model.DirectionOut
 
 	err := m.messageBackend.Create(channel.UUID, message)
 	return message, err

@@ -45,7 +45,10 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 				data["ErrorMain"] = map[string]any{"Code": 500}
 			}
 		}
-		_ = templates.ExecuteTemplate(w, "chat", data)
+		err = templates.ExecuteTemplate(w, "chat", data)
+		if err != nil {
+			log.Warn().Err(err).Send()
+		}
 	}
 }
 

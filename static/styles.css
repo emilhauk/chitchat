@@ -5,6 +5,8 @@
 
 :root {
     --main-ui-framing: #ADADAD;
+    --message-out: #708BD7;
+    --message-in: #F0F0F0;
 }
 
 body {
@@ -15,9 +17,26 @@ body {
 nav {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 1rem;
     height: 100%;
+    min-width: 20ch;
     border-right: 1px solid var(--main-ui-framing);
+}
+
+nav .channel-list {
+    list-style: none;
+    flex-grow: 1;
+}
+
+nav .user {
+    display: flex;
+    padding: .5rem;
+    gap: .5rem
+}
+
+nav .user img {
+    width: 3rem;
+    height: 3rem;
 }
 
 main {
@@ -34,9 +53,14 @@ main section {
     flex-direction: column;
     justify-content: flex-end;
     align-content: end;
+}
 
-    border-top: 1px solid var(--main-ui-framing);
+main header {
     border-bottom: 1px solid var(--main-ui-framing);
+}
+
+main header h1 {
+    margin-left: .5rem;
 }
 
 .chat {
@@ -46,6 +70,9 @@ main section {
 
 .message {
     max-width: 50ch;
+}
+
+.message p {
     padding: .5em;
     border-radius: 1em;
 }
@@ -54,7 +81,29 @@ main section {
     align-self: self-start;
 }
 
+.direction--in p {
+    background-color: var(--message-in);
+}
+
 .direction--out {
     align-self: self-end;
-    background-color: hsl(224.27deg 56.28% 64.12% / 97%);
+}
+
+.direction--out p {
+    background-color: var(--message-out);
+}
+
+main form {
+    display: flex;
+    gap: .5rem;
+    margin: .5rem;
+    border: 1px solid var(--main-ui-framing);
+    border-radius: .5rem;
+    padding: .5rem;
+}
+
+main form input[type=text] {
+    font-size: 1.2rem;
+    border: none;
+    flex-grow: 1;
 }

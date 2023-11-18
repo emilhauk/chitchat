@@ -1,6 +1,6 @@
 {{define "channel"}}
 <header>
-    {{.Name}}
+    <h1>{{.Name}}</h1>
 </header>
 <section class="chat">
     {{with .Messages}}
@@ -13,7 +13,7 @@
 </section>
 <div>
     <form action="/im/channel/{{.UUID}}/message" method="post" hx-post="/im/channel/{{.UUID}}/message" hx-target="main section" hx-swap="beforeend">
-        <textarea name="message"></textarea>
+        <input type="text" name="message" placeholder="Type your message here...">
         <button>Send</button>
     </form>
 </div>

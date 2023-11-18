@@ -1,0 +1,11 @@
+{{define "channel-list"}}
+<ul class="channel-list">
+    {{range .}}
+    <li>
+        <a href="/im/channel/{{.UUID}}" hx-get="/im/channel/{{.UUID}}" hx-push-url="true" hx-target="main" hx-swap="innerHTML">
+            <span>{{.Name}}</span>
+        </a>
+    </li>
+    {{end}}
+</ul>
+{{end}}

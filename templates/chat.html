@@ -10,19 +10,9 @@
 <body>
     <nav>
         <span>Channels</span>
-        <ul>
-            {{range .Channels}}
-            <li>
-                <a href="/im/channel/{{.UUID}}" hx-get="/im/channel/{{.UUID}}" hx-push-url="true" hx-target="main" hx-swap="innerHTML">
-                    <span>{{.Name}}</span>
-                </a>
-            </li>
-            {{end}}
-        </ul>
+        {{template "channel-list" .Channels}}
         {{with .User}}
-        <div>
-            <span>{{.Name}}</span>
-        </div>
+            {{template "user" .}}
         {{end}}
     </nav>
     <main>

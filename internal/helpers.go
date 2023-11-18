@@ -2,8 +2,12 @@ package app
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"github.com/emilhauk/chitchat/internal/model"
 	"net/http"
+	"strings"
 )
 
 type contextKey string
@@ -34,4 +38,9 @@ func Redirect(w http.ResponseWriter, r *http.Request, location string) {
 
 func IsHtmxRequest(r *http.Request) bool {
 	return r.Header.Get("hx-request") == "true"
+}
+
+func BuildGravatar(email string) string {
+	hash := hex.EncodeToString(sha256.New().Sum([]byte(strings.ToLower(strings.TrimSpace(email)))))
+	return fmt.Sprintf("https://gravatar.com/avatar/%s?r=r&d=retro", hash)
 }

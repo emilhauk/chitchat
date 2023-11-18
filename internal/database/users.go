@@ -148,6 +148,7 @@ func (s Users) mapToUser(row interface{ Scan(...any) error }) (model.User, error
 		Name:      name,
 		Email:     email,
 		CreatedAt: createdAt,
+		AvatarUrl: app.BuildGravatar(email),
 	}
 	if emailVerifiedAt.Valid {
 		user.EmailVerifiedAt = &emailVerifiedAt.Time

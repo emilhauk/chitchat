@@ -1,6 +1,8 @@
 {{define "message"}}
 <div class="message direction--{{.Direction}}">
-    <span>{{.Sender.Name}}</span>
+    {{if eq .Direction "in"}}
+        <span>{{.Sender.Name}}</span>
+    {{end}}
     <p>{{.Content}}</p>
 </div>
 {{end}}
