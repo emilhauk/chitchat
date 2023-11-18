@@ -13,6 +13,7 @@ type UserBackend interface {
 	Create(model.User) error
 	FindByUUID(uuid string) (model.User, error)
 	FindByEmail(email string) (model.User, error)
+	FindAllByUUIDs(userUUIDs ...string) (map[string]model.User, error)
 }
 
 type CredentialBackend interface {
@@ -53,4 +54,8 @@ func (m User) FindByEmailAndPlainPassword(email, plainPassword string) (model.Us
 	}
 
 	return user, err
+}
+
+func (m User) FindAllByUUIDs(userUUIDs ...string) (map[string]model.User, error) {
+	return m.userBackend.FindAllByUUIDs(userUUIDs...)
 }

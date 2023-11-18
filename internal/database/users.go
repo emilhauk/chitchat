@@ -5,18 +5,21 @@ import (
 	"errors"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
 type Users struct {
 	db *sql.DB
 
-	create          *sql.Stmt
-	findByUUID      *sql.Stmt
-	findByEmail     *sql.Stmt
-	setEmail        *sql.Stmt
-	setDeactivation *sql.Stmt
-	remove          *sql.Stmt
+	create            *sql.Stmt
+	findByUUID        *sql.Stmt
+	findByEmail       *sql.Stmt
+	findAllByUUIDs    *sql.Stmt
+	findAllByUUIDsSQL string
+	setEmail          *sql.Stmt
+	setDeactivation   *sql.Stmt
+	remove            *sql.Stmt
 }
 
 func NewUserStore(db *sql.DB) Users {
@@ -32,6 +35,11 @@ func NewUserStore(db *sql.DB) Users {
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for users.findByEmail")
 	}
+	findAllByUUIDsSQL := "SELECT uuid, name, email, email_verified_at, created_at, last_login_at, deactivated_at, updated_at FROM users WHERE uuid IN (?)"
+	findAllByUUIDs, err := db.Prepare(findAllByUUIDsSQL)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("Failed to prepare statement for users.findAllByUUIDs")
+	}
 	setEmail, err := db.Prepare("UPDATE users SET email = ?, email_verified_at = ?, updated_at = NOW() WHERE uuid = ?")
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for users.setEmail")
@@ -45,13 +53,15 @@ func NewUserStore(db *sql.DB) Users {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for users.remove")
 	}
 	return Users{
-		db:              db,
-		create:          create,
-		findByUUID:      findByUUID,
-		findByEmail:     findByEmail,
-		setEmail:        setEmail,
-		setDeactivation: setDeactivation,
-		remove:          remove,
+		db:                db,
+		create:            create,
+		findByUUID:        findByUUID,
+		findByEmail:       findByEmail,
+		findAllByUUIDs:    findAllByUUIDs,
+		findAllByUUIDsSQL: findAllByUUIDsSQL,
+		setEmail:          setEmail,
+		setDeactivation:   setDeactivation,
+		remove:            remove,
 	}
 }
 
@@ -74,6 +84,33 @@ func (s Users) FindByEmail(email string) (model.User, error) {
 		return user, app.ErrUserNotFound
 	}
 	return user, err
+}
+
+func (s Users) FindAllByUUIDs(userUUIDs ...string) (users map[string]model.User, err error) {
+	users = map[string]model.User{}
+	query, args, err := sqlx.In(s.findAllByUUIDsSQL, userUUIDs)
+	if err != nil {
+		return users, err
+	}
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return users, err
+	}
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return users, nil
+		}
+		return users, err
+	}
+	for rows.Next() {
+		user, err := s.mapToUser(rows)
+		if err != nil {
+			return users, err
+		}
+		users[user.UUID] = user
+	}
+	return users, err
 }
 
 func (s Users) SetEmail(uuid, email string, emailVerifiedAt *time.Time) error {

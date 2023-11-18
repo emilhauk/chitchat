@@ -13,7 +13,7 @@
         <ul>
             {{range .Channels}}
             <li>
-                <a href="/channel/{{.UUID}}" hx-get="/channel/{{.UUID}}" hx-push-url="true" hx-target="main" hx-swap="innerHTML">
+                <a href="/im/channel/{{.UUID}}" hx-get="/im/channel/{{.UUID}}" hx-push-url="true" hx-target="main" hx-swap="innerHTML">
                     <span>{{.Name}}</span>
                 </a>
             </li>
@@ -32,7 +32,11 @@
             {{with .Channel}}
                 {{template "channel" .}}
             {{else}}
-                <p>Select channel from the menu, or <a href="/new-channel" hx-get="/new-channel" hx-push-url="true" hx-target="main" hx-swap="innerHTML">start a new one</a>.</p>
+                {{if .ShowNewChannelForm}}
+                    {{template "new-channel-form"}}
+                {{else}}
+                    <p>Select channel from the menu, or <a href="/im/new-channel" hx-get="/im/new-channel" hx-push-url="true" hx-target="main" hx-swap="innerHTML">start a new one</a>.</p>
+                {{end}}
             {{end}}
         {{end}}
     </main>

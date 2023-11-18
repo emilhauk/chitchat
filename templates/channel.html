@@ -1,22 +1,20 @@
 {{define "channel"}}
-<div>
-    <header>
-        {{.Name}}
-    </header>
-    <section>
-        {{with .Messages}}
-            {{range .}}
-                {{template "message" .}}
-            {{end}}
-        {{else}}
-            <p>No messages yet...</p>
+<header>
+    {{.Name}}
+</header>
+<section class="chat">
+    {{with .Messages}}
+        {{range .}}
+            {{template "message" .}}
         {{end}}
-    </section>
-    <div>
-        <form action="/channel/{{.UUID}}" method="post" hx-post="/channel/{{.UUID}}" hx-target="main section" hx-swap="beforeend">
-            <textarea name="message"></textarea>
-            <button>Send</button>
-        </form>
-    </div>
+    {{else}}
+        <p>No messages yet...</p>
+    {{end}}
+</section>
+<div>
+    <form action="/im/channel/{{.UUID}}/message" method="post" hx-post="/im/channel/{{.UUID}}/message" hx-target="main section" hx-swap="beforeend">
+        <textarea name="message"></textarea>
+        <button>Send</button>
+    </form>
 </div>
 {{end}}

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
 	"github.com/go-chi/chi/v5"
@@ -8,7 +9,7 @@ import (
 )
 
 func SendMessage(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(model.User)
+	user := app.GetUserFromContextOrPanic(r.Context())
 	channelUUID := chi.URLParam(r, "channelUUID")
 	err := r.ParseForm()
 	if err != nil {
@@ -37,6 +38,6 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	if app.IsHtmxRequest(r) {
 		_ = templates.ExecuteTemplate(w, "message", message)
 	} else {
-		app.Redirect(w, r, r.URL.String())
+		app.Redirect(w, r, fmt.Sprintf("/im/channel/%s", channelUUID))
 	}
 }

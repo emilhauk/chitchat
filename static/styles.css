@@ -9,7 +9,7 @@
 
 body {
     display: flex;
-    height: 100vh;
+    height: 100dvh;
 }
 
 nav {
@@ -24,11 +24,37 @@ main {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
 }
 
 main section {
     flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     align-content: end;
+
     border-top: 1px solid var(--main-ui-framing);
     border-bottom: 1px solid var(--main-ui-framing);
+}
+
+.chat {
+    gap: .5rem;
+    padding: .5rem;
+}
+
+.message {
+    max-width: 50ch;
+    padding: .5em;
+    border-radius: 1em;
+}
+
+.direction--in {
+    align-self: self-start;
+}
+
+.direction--out {
+    align-self: self-end;
+    background-color: hsl(224.27deg 56.28% 64.12% / 97%);
 }

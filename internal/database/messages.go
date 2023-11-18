@@ -20,7 +20,7 @@ func NewMessageStore(db *sql.DB) Messages {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for messages.create")
 	}
 
-	findForChannel, err := db.Prepare("SELECT uuid, user_uuid, content, version, sent_at, deleted_at, updated_at FROM messages WHERE channel_uuid = ? ORDER BY sent_at DESC LIMIT ? OFFSET ?")
+	findForChannel, err := db.Prepare("SELECT uuid, user_uuid, content, version, sent_at, deleted_at, updated_at FROM messages WHERE channel_uuid = ? ORDER BY sent_at LIMIT ? OFFSET ?")
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for messages.findForChannel")
 	}
