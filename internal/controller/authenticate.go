@@ -38,7 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   0,
 		Secure:   true,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, &cookie)
 	app.Redirect(w, r, "/im")

@@ -6,9 +6,21 @@ import (
 	"net/http"
 )
 
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
+
+var UserContextKey = contextKey("user")
+
 func GetUserFromContextOrPanic(ctx context.Context) model.User {
 	// This will panic and that's ok. Should never be used if un certain.
-	return ctx.Value("user").(model.User)
+	return ctx.Value(UserContextKey).(model.User)
+}
+
+func ContextWithUser(ctx context.Context, user model.User) context.Context {
+	return context.WithValue(ctx, UserContextKey, user)
 }
 
 func Redirect(w http.ResponseWriter, r *http.Request, location string) {

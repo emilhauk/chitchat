@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
@@ -55,8 +54,7 @@ func (m Auth) RequireAuthenticatedUser(next http.Handler) http.Handler {
 			return
 		}
 		log.Debug().Any("user_uuid", user.UUID).Msg("User logged in.")
-		ctx := context.WithValue(r.Context(), "user", user)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r.WithContext(app.ContextWithUser(r.Context(), user)))
 	})
 }
 
@@ -71,6 +69,7 @@ func (m Auth) RedirectIfLoggedIn(location string) func(next http.Handler) http.H
 				case errors.Is(err, app.ErrSessionNotFound):
 					fallthrough
 				case errors.Is(err, app.ErrUserNotFound):
+					log.Debug().Err(err).Any("cookie", r.Header.Get("cookie")).Msg("Not logged in")
 					next.ServeHTTP(w, r) // It's OK for the user not to be logged in
 				default:
 					log.Error().Err(err).Msg("Unknown error establishing user login state")

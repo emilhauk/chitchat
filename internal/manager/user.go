@@ -36,8 +36,8 @@ func (m User) FindByUUID(uuid string) (model.User, error) {
 	return m.userBackend.FindByUUID(uuid)
 }
 
-func (m User) FindByEmailAndPlainPassword(email, plainPassword string) (model.User, error) {
-	user, err := m.userBackend.FindByEmail(email)
+func (m User) FindByEmailAndPlainPassword(email, plainPassword string) (user model.User, err error) {
+	user, err = m.userBackend.FindByEmail(email)
 	if err != nil {
 		return user, err
 	}
