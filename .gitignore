@@ -15,5 +15,5 @@
 go.work
 
 # Output of build
-./build
+build
 
