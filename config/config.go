@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
 	"time"
@@ -56,19 +57,12 @@ func init() {
 		panic(err)
 	}
 
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	//zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	Logger = zerolog.New(zerolog.ConsoleWriter{
-		Out:        os.Stdout,
-		TimeFormat: time.RFC3339,
-	}).With().Timestamp().Logger()
-
 	App = AppConfig{
-		Host:     envString("HOSTNAME", "localhost"),
-		Port:     envInt("PORT", 3333),
-		Version:  version,
-		Location: europeOslo,
+		Host:      envString("HOSTNAME", "localhost"),
+		Port:      envInt("PORT", 3333),
+		Version:   version,
+		Location:  europeOslo,
+		InDevMode: envString("MODE", "development") == "development",
 	}
 
 	Database = DatabaseConfig{
@@ -84,6 +78,18 @@ func init() {
 		Enabled: envBool("SMTP_ENABLED", false),
 		Host:    envString("SMTP_HOST", ""),
 		Port:    envString("SMTP_PORT", "25"),
+	}
+
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	if App.InDevMode {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		Logger = zerolog.New(zerolog.ConsoleWriter{
+			Out:        os.Stdout,
+			TimeFormat: time.TimeOnly,
+		}).With().Timestamp().Logger()
+	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		Logger = log.Logger
 	}
 }
 

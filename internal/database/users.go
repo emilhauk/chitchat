@@ -73,7 +73,7 @@ func (s Users) Create(m model.User) error {
 func (s Users) FindByUUID(uuid string) (model.User, error) {
 	user, err := s.mapToUser(s.findByUUID.QueryRow(uuid))
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return user, app.ErrUserNotFound
+		return user, errors.Join(app.ErrUserNotFound, err)
 	}
 	return user, err
 }
@@ -81,7 +81,7 @@ func (s Users) FindByUUID(uuid string) (model.User, error) {
 func (s Users) FindByEmail(email string) (model.User, error) {
 	user, err := s.mapToUser(s.findByEmail.QueryRow(email))
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return user, app.ErrUserNotFound
+		return user, errors.Join(app.ErrUserNotFound, err)
 	}
 	return user, err
 }

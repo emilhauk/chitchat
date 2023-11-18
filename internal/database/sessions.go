@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+	"errors"
+	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
 	"time"
 )
@@ -47,7 +49,11 @@ func (s Sessions) Create(m model.Session) error {
 }
 
 func (s Sessions) FindByID(id string) (model.Session, error) {
-	return s.mapToSession(s.findById.QueryRow(id))
+	session, err := s.mapToSession(s.findById.QueryRow(id))
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return session, errors.Join(app.ErrSessionNotFound, err)
+	}
+	return session, err
 }
 
 func (s Sessions) SetLastSeenAt(id string, lastSeenAt time.Time) error {

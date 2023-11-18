@@ -7,10 +7,25 @@ services:
       - "3390"
     volumes:
       - "./schema:/docker-entrypoint-initdb.d"
+    healthcheck:
+      test: "healthcheck.sh --su-mysql  --connect --innodb_initialized"
+      interval: 2s
+      retries: 30
     environment:
       MARIADB_ROOT_PASSWORD: root-pw
       MARIADB_DATABASE: chitchat
       MARIADB_USER: chitchat
       MARIADB_PASSWORD: password
-#  app:
-#    build: .
+  chitchat:
+    build: .
+    ports:
+      - "3333:3333"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      DB_HOSTNAME: db
+      DB_PORT: 3306
+      # Set to anything, but "development" to get app out of dev-mode
+      MODE: "development"
