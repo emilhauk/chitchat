@@ -5,6 +5,7 @@ import (
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 var log = config.Logger
@@ -14,15 +15,16 @@ type UserBackend interface {
 	FindByUUID(uuid string) (model.User, error)
 	FindByEmail(email string) (model.User, error)
 	FindAllByUUIDs(userUUIDs ...string) (map[string]model.User, error)
-}
-
-type CredentialBackend interface {
-	FindPasswordByUserUUID(uuid string) (model.PasswordCredential, error)
+	SetEmail(uuid, email string, emailVerifiedAt time.Time) error
 }
 
 type User struct {
 	userBackend       UserBackend
 	credentialBackend CredentialBackend
+}
+
+func (m User) Create(user model.User) error {
+	return m.userBackend.Create(user)
 }
 
 func NewUserManager(userBackend UserBackend, credentialBackend CredentialBackend) User {
@@ -34,6 +36,10 @@ func NewUserManager(userBackend UserBackend, credentialBackend CredentialBackend
 
 func (m User) FindByUUID(uuid string) (model.User, error) {
 	return m.userBackend.FindByUUID(uuid)
+}
+
+func (m User) FindByEmail(email string) (model.User, error) {
+	return m.userBackend.FindByEmail(email)
 }
 
 func (m User) FindByEmailAndPlainPassword(email, plainPassword string) (user model.User, err error) {

@@ -8,9 +8,16 @@
     <link rel="stylesheet" href="/public/styles.css">
 </head>
 <body>
-    <h1>Hi</h1>
-    <p>This is Chitchat. Login to continue.</p>
-    {{template "login"}}
+<main>
+    <div class="welcome">
+        <h1>Hi</h1>
+        <p>This is Chitchat</p>
+    </div>
+    <div class="actions">
+        {{template "start"}}
+    </div>
+</main>
+
 </body>
 </html>
 {{end}}

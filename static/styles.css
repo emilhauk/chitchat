@@ -93,7 +93,7 @@ main header h1 {
     background-color: var(--message-out);
 }
 
-main form {
+form.write-box {
     display: flex;
     gap: .5rem;
     margin: .5rem;
@@ -102,8 +102,14 @@ main form {
     padding: .5rem;
 }
 
-main form input[type=text] {
+ form.write-box input[type=text] {
     font-size: 1.2rem;
     border: none;
     flex-grow: 1;
+}
+
+form.gain-access {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
