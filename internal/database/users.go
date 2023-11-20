@@ -23,7 +23,7 @@ type Users struct {
 }
 
 func NewUserStore(db *sql.DB) Users {
-	create, err := db.Prepare("INSERT INTO users (uuid, name, email, created_at) VALUE (?, ?, ?, ?)")
+	create, err := db.Prepare("INSERT INTO users (uuid, name, email, email_verified_at, created_at) VALUE (?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to prepare statement for users.create")
 	}
@@ -66,7 +66,7 @@ func NewUserStore(db *sql.DB) Users {
 }
 
 func (s Users) Create(m model.User) error {
-	_, err := s.create.Exec(m.UUID, m.Name, m.Email, m.CreatedAt)
+	_, err := s.create.Exec(m.UUID, m.Name, m.Email, m.EmailVerifiedAt, m.CreatedAt)
 	return err
 }
 
@@ -116,7 +116,7 @@ func (s Users) FindAllByUUIDs(userUUIDs ...string) (users map[string]model.User,
 	return users, err
 }
 
-func (s Users) SetEmail(uuid, email string, emailVerifiedAt *time.Time) error {
+func (s Users) SetEmail(uuid, email string, emailVerifiedAt time.Time) error {
 	_, err := s.setEmail.Exec(email, emailVerifiedAt, uuid)
 	return err
 }

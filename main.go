@@ -12,13 +12,16 @@ import (
 )
 
 var (
-	log            = config.Logger
-	dbStore        database.DBStore
-	userManager    manager.User
-	sessionManager manager.Session
-	channelManager manager.Channel
-	messageManager manager.Message
-	chatService    service.Chat
+	log                 = config.Logger
+	dbStore             database.DBStore
+	userManager         manager.User
+	sessionManager      manager.Session
+	channelManager      manager.Channel
+	messageManager      manager.Message
+	verificationManager manager.Verification
+	credentialManager   manager.Credential
+	chatService         service.Chat
+	registerService     service.Register
 )
 
 func main() {
@@ -36,12 +39,15 @@ func main() {
 	sessionManager = manager.NewSessionManager(dbStore.Sessions)
 	channelManager = manager.NewChannelManager(dbStore.Channels)
 	messageManager = manager.NewMessageManager(dbStore.Messages)
+	verificationManager = manager.NewVerificationManager(dbStore.Verifications)
+	credentialManager = manager.NewCredentialManager(dbStore.Credentials)
 
 	chatService = service.NewChatService(userManager, channelManager, messageManager)
+	registerService = service.NewRegisterService(userManager, verificationManager, credentialManager)
 
 	// TODO This stinks. Should provide better wrapper for controllers
 	controller.ProvideManagers(userManager, sessionManager, channelManager, messageManager)
-	controller.ProvideServices(chatService)
+	controller.ProvideServices(chatService, registerService)
 
 	authMiddleware := internalMiddleware.NewAuthMiddleware(userManager, sessionManager)
 	router := server.NewRouter(authMiddleware)

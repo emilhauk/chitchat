@@ -30,19 +30,21 @@ func NewConnectionPool(config config.DatabaseConfig) (*sql.DB, error) {
 }
 
 type DBStore struct {
-	Users       Users
-	Credentials Credentials
-	Sessions    Sessions
-	Channels    Channels
-	Messages    Messages
+	Users         Users
+	Credentials   Credentials
+	Sessions      Sessions
+	Channels      Channels
+	Messages      Messages
+	Verifications Verifications
 }
 
 func NewDBStore(db *sql.DB) DBStore {
 	return DBStore{
-		Users:       NewUserStore(db),
-		Credentials: NewCredentialStore(db),
-		Sessions:    NewSessionStore(db),
-		Channels:    NewChannelStore(db),
-		Messages:    NewMessageStore(db),
+		Users:         NewUserStore(db),
+		Credentials:   NewCredentialStore(db),
+		Sessions:      NewSessionStore(db),
+		Channels:      NewChannelStore(db),
+		Messages:      NewMessageStore(db),
+		Verifications: NewVerificationsStore(db),
 	}
 }

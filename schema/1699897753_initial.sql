@@ -11,8 +11,19 @@ CREATE TABLE users (
     INDEX (deactivated_at)
 ) CHARSET = utf8, ENGINE = InnoDB;
 
+CREATE TABLE field_verifications (
+    uuid VARCHAR(36) NOT NULL PRIMARY KEY,
+    code VARCHAR(10) NOT NULL UNIQUE,
+    user_uuid VARCHAR(36) DEFAULT NULL,
+    field_name VARCHAR(50) NOT NULL,
+    field_value VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL,
+
+    INDEX (created_at)
+) CHARSET = utf8, ENGINE = InnoDB;
+
 CREATE TABLE password_credentials (
-    user_uuid VARCHAR(36) NOT NULL PRIMARY KEY ,
+    user_uuid VARCHAR(36) NOT NULL PRIMARY KEY,
     password_hash VARCHAR(100) NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME DEFAULT NULL,

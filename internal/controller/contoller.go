@@ -12,11 +12,12 @@ var (
 	err       error
 	templates *template.Template
 
-	userManager    manager.User
-	sessionManager manager.Session
-	channelManager manager.Channel
-	messageManager manager.Message
-	chatService    service.Chat
+	userManager     manager.User
+	sessionManager  manager.Session
+	channelManager  manager.Channel
+	messageManager  manager.Message
+	chatService     service.Chat
+	registerService service.Register
 )
 
 func init() {
@@ -33,6 +34,7 @@ func ProvideManagers(um manager.User, sm manager.Session, cm manager.Channel, mm
 	messageManager = mm
 }
 
-func ProvideServices(cs service.Chat) {
+func ProvideServices(cs service.Chat, rs service.Register) {
 	chatService = cs
+	registerService = rs
 }

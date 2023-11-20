@@ -1,0 +1,8 @@
+{{define "start"}}
+<form class="gain-access" action="/auth/check-username" method="post" hx-post="/auth/check-username" hx-swap="outerHTML">
+    <label>
+        <input type="email" name="email" placeholder="Email" autocomplete="current-username" required>
+    </label>
+    <button>Send</button>
+</form>
+{{end}}

@@ -18,7 +18,12 @@ func NewRouter(authMiddleware internalMiddleware.Auth) http.Handler {
 		r.Use(authMiddleware.RedirectIfLoggedIn("/im"))
 
 		r.Get("/", controller.Welcome)
-		r.Post("/login", controller.Login)
+
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/check-username", controller.CheckUsername)
+			r.Post("/login", controller.Login)
+			r.Post("/register", controller.Register)
+		})
 	})
 
 	r.Route("/im", func(r chi.Router) {

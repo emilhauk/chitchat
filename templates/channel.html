@@ -12,8 +12,10 @@
     {{end}}
 </section>
 <div>
-    <form action="/im/channel/{{.UUID}}/message" method="post" hx-post="/im/channel/{{.UUID}}/message" hx-target="main section" hx-swap="beforeend">
-        <input type="text" name="message" placeholder="Type your message here...">
+    <form class="write-box" action="/im/channel/{{.UUID}}/message" method="post" hx-post="/im/channel/{{.UUID}}/message" hx-target="main section" hx-swap="beforeend">
+        <label>
+            <input type="text" name="message" placeholder="Type your message here...">
+        </label>
         <button>Send</button>
     </form>
 </div>
