@@ -3,7 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/emilhauk/chitchat/config"
-	app "github.com/emilhauk/chitchat/internal"
+	App "github.com/emilhauk/chitchat/internal"
 	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
 	"github.com/emilhauk/chitchat/internal/model"
 	"net/http"
@@ -142,4 +142,14 @@ func createAndSetSessionCookie(w http.ResponseWriter, domain, userUUID string) e
 	}
 	http.SetCookie(w, &cookie)
 	return nil
+}
+
+func Logout(w http.ResponseWriter, r http.Request) {
+	if err != nil {
+		return err
+	}
+
+	user := app.GetUserFromContextOrPanic(r.Context())
+	
+	
 }
