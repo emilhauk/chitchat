@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"github.com/emilhauk/chitchat/internal/model"
 	"github.com/rs/zerolog/log"
@@ -56,8 +55,8 @@ func IsHtmxRequest(r *http.Request) bool {
 }
 
 func BuildGravatar(email string) string {
-	hash := hex.EncodeToString(sha256.New().Sum([]byte(strings.ToLower(strings.TrimSpace(email)))))
-	return fmt.Sprintf("https://gravatar.com/avatar/%s?r=r&d=retro", hash)
+	hash := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(email))))
+	return fmt.Sprintf("https://gravatar.com/avatar/%x?r=r&d=retro", hash)
 }
 
 const otpChars = "1234567890"
