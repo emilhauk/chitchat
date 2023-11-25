@@ -102,10 +102,14 @@ form.write-box {
     padding: .5rem;
 }
 
- form.write-box input[type=text] {
+label[for=write-message] {
+    flex-grow: 1;
+}
+
+label[for=write-message] input {
     font-size: 1.2rem;
     border: none;
-    flex-grow: 1;
+    width: 100%;
 }
 
 form.gain-access {
