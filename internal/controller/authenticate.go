@@ -3,7 +3,7 @@ package controller
 import (
 	"errors"
 	"github.com/emilhauk/chitchat/config"
-	App "github.com/emilhauk/chitchat/internal"
+	app "github.com/emilhauk/chitchat/internal"
 	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
 	"github.com/emilhauk/chitchat/internal/model"
 	"net/http"
@@ -144,12 +144,30 @@ func createAndSetSessionCookie(w http.ResponseWriter, domain, userUUID string) e
 	return nil
 }
 
-func Logout(w http.ResponseWriter, r http.Request) {
+func Logout(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := internalMiddleware.GetSessionID(r)
 	if err != nil {
-		return err
+		app.Redirect(w, r, "/")
+		return
 	}
 
-	user := app.GetUserFromContextOrPanic(r.Context())
-	
-	
+	err = sessionManager.Delete(sessionID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to Delete user session")
+	}
+
+	cookie := http.Cookie{
+		Name:     internalMiddleware.AuthCookie,
+		Value:    "",
+		Path:     "/",
+		Domain:   r.URL.Host,
+		Expires:  time.Unix(0, 0),
+		MaxAge:   0,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	app.Redirect(w, r, "/")
 }
