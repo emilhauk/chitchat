@@ -28,6 +28,8 @@ func NewRouter(authMiddleware internalMiddleware.Auth, sseBroker *sse.Broker) ht
 		})
 	})
 
+	r.With(authMiddleware.RequireAuthenticatedUser).Get("/auth/logout", controller.Logout)
+
 	r.Route("/im", func(r chi.Router) {
 		r.Use(authMiddleware.RequireAuthenticatedUser)
 
