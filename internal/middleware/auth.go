@@ -10,10 +10,6 @@ import (
 
 const AuthCookie = "chitchat-session"
 
-var (
-	ErrCookieNotFound = errors.New("cookie not found")
-)
-
 type UserManager interface {
 	FindByUUID(uuid string) (model.User, error)
 }
@@ -40,7 +36,7 @@ func (m Auth) RequireAuthenticatedUser(next http.Handler) http.Handler {
 		user, err := m.resolveUser(r)
 		if err != nil {
 			switch {
-			case errors.Is(err, ErrCookieNotFound):
+			case errors.Is(err, http.ErrNoCookie):
 				app.Redirect(w, r, "/")
 			case errors.Is(err, app.ErrSessionNotFound):
 				app.Redirect(w, r, "/?reason=invalid-session")
@@ -64,7 +60,7 @@ func (m Auth) RedirectIfLoggedIn(location string) func(next http.Handler) http.H
 			_, err := m.resolveUser(r)
 			if err != nil {
 				switch {
-				case errors.Is(err, ErrCookieNotFound):
+				case errors.Is(err, http.ErrNoCookie):
 					fallthrough
 				case errors.Is(err, app.ErrSessionNotFound):
 					fallthrough
@@ -87,12 +83,12 @@ func (m Auth) RedirectIfLoggedIn(location string) func(next http.Handler) http.H
 func (m Auth) resolveUser(r *http.Request) (model.User, error) {
 	var user model.User
 
-	cookie, err := r.Cookie(AuthCookie)
+	id, err := GetSessionID(r)
 	if err != nil {
-		return user, ErrCookieNotFound
+		return user, err
 	}
 
-	session, err := m.sessionManager.FindByID(cookie.Value)
+	session, err := m.sessionManager.FindByID(id)
 	if err != nil {
 		return user, err
 	}
@@ -112,4 +108,13 @@ func (m Auth) resolveUser(r *http.Request) (model.User, error) {
 	}
 
 	return user, nil
+}
+
+func GetSessionID(r *http.Request) (string, error) {
+	cookie, err := r.Cookie(AuthCookie)
+	if err != nil {
+		return "", err
+	}
+
+	return cookie.Value, err
 }

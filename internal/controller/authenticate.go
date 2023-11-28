@@ -143,3 +143,31 @@ func createAndSetSessionCookie(w http.ResponseWriter, domain, userUUID string) e
 	http.SetCookie(w, &cookie)
 	return nil
 }
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := internalMiddleware.GetSessionID(r)
+	if err != nil {
+		app.Redirect(w, r, "/")
+		return
+	}
+
+	err = sessionManager.Delete(sessionID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to Delete user session")
+	}
+
+	cookie := http.Cookie{
+		Name:     internalMiddleware.AuthCookie,
+		Value:    "",
+		Path:     "/",
+		Domain:   r.URL.Host,
+		Expires:  time.Unix(0, 0),
+		MaxAge:   0,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	app.Redirect(w, r, "/")
+}
