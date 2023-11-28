@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"bytes"
 	"fmt"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
+	"github.com/emilhauk/chitchat/internal/sse"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -35,8 +37,23 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		app.Redirect(w, r, "/error/internal-server-error")
 		return
 	}
+
+	go func(message model.Message) {
+		message.Direction = model.DirectionIn
+		buf := bytes.Buffer{}
+		err = templates.ExecuteTemplate(&buf, "message", message)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to execute template")
+			return
+		}
+		err := sse.PublishUsingBrokerInContext(r.Context(), sse.NewEvent("message", channelUUID, message.Sender.UUID, buf.String()))
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to publish event")
+		}
+	}(message)
+
 	if app.IsHtmxRequest(r) {
-		_ = templates.ExecuteTemplate(w, "message", message)
+		err = templates.ExecuteTemplate(w, "message", message)
 	} else {
 		app.Redirect(w, r, fmt.Sprintf("/im/channel/%s", channelUUID))
 	}

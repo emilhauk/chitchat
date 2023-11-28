@@ -9,6 +9,7 @@ import (
 	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
 	"github.com/emilhauk/chitchat/internal/server"
 	"github.com/emilhauk/chitchat/internal/service"
+	"github.com/emilhauk/chitchat/internal/sse"
 )
 
 var (
@@ -50,7 +51,8 @@ func main() {
 	controller.ProvideServices(chatService, registerService)
 
 	authMiddleware := internalMiddleware.NewAuthMiddleware(userManager, sessionManager)
-	router := server.NewRouter(authMiddleware)
+	sseBroker := sse.NewBroker(config.Logger)
+	router := server.NewRouter(authMiddleware, sseBroker)
 
 	server.Start(ctx, router)
 }

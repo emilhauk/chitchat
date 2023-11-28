@@ -66,6 +66,7 @@ main header h1 {
 .chat {
     gap: .5rem;
     padding: .5rem;
+    overflow-y: auto;
 }
 
 .message {
