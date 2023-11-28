@@ -17,3 +17,6 @@ go.work
 # Output of build
 build
 
+# IDEs specific folders
+.idea
+.vscode
