@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/emilhauk/chitchat/internal/controller"
 	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
+	"github.com/emilhauk/chitchat/internal/sse"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"os"
@@ -10,9 +11,10 @@ import (
 	"strings"
 )
 
-func NewRouter(authMiddleware internalMiddleware.Auth) http.Handler {
+func NewRouter(authMiddleware internalMiddleware.Auth, sseBroker *sse.Broker) http.Handler {
 	r := chi.NewRouter()
 	r.Use(internalMiddleware.RequestLogger)
+	r.Use(sseBroker.Middleware)
 
 	r.Group(func(r chi.Router) {
 		r.Use(authMiddleware.RedirectIfLoggedIn("/im"))
@@ -34,6 +36,7 @@ func NewRouter(authMiddleware internalMiddleware.Auth) http.Handler {
 		r.Route("/channel", func(r chi.Router) {
 			r.Route("/{channelUUID}", func(r chi.Router) {
 				r.Get("/", controller.GetChannel)
+				r.Get("/stream", sseBroker.ServeHTTP)
 				r.Post("/message", controller.SendMessage)
 			})
 		})

@@ -2,13 +2,21 @@
 <header>
     <h1>{{.Name}}</h1>
 </header>
-<section class="chat">
+<section class="chat" hx-ext="sse" sse-connect="/im/channel/{{.UUID}}/stream" sse-swap="message" hx-swap="beforeend">
     {{with .Messages}}
         {{range .}}
             {{template "message" .}}
         {{end}}
     {{else}}
-        <p>No messages yet...</p>
+        <div class="chat--no-messages">
+            {{if .IsCurrentUserAdmin}}
+                <p>Users may scan this code to join your channel</p>
+                <img src="/join/{{.UUID}}/image" alt="QR Code">
+                <p>or give them this link: <a href="/join/{{.UUID}}">/join/{{.UUID}}</a></p>
+            {{else}}
+                <span>No messages here yet</span>
+            {{end}}
+        </div>
     {{end}}
 </section>
 <div>

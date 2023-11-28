@@ -9,9 +9,10 @@ const (
 )
 
 type Channel struct {
-	UUID      string
-	Name      string
-	Messages  []Message
-	CreatedAt time.Time
-	UpdatedAt *time.Time
+	UUID               string
+	Name               string
+	Messages           []Message
+	IsCurrentUserAdmin bool
+	CreatedAt          time.Time
+	UpdatedAt          *time.Time
 }

@@ -18,7 +18,10 @@ func (c contextKey) String() string {
 	return string(c)
 }
 
-var UserContextKey = contextKey("user")
+var (
+	UserContextKey   = contextKey("user")
+	BrokerContextKey = contextKey("sseBroker")
+)
 
 func GetUserFromContextOrPanic(ctx context.Context) model.User {
 	// This will panic and that's ok. Should never be used if un certain.
@@ -38,7 +41,9 @@ func RedirectWithReturnURL(w http.ResponseWriter, r *http.Request, location, ret
 		if u, err := url.Parse(location); err != nil {
 			log.Error().Err(err).Msgf("Failed to parse location=%s", location)
 		} else {
-			u.Query().Add("return-url", url.QueryEscape(returnUrl))
+			q := u.Query()
+			q.Add("return-url", url.QueryEscape(returnUrl))
+			u.RawQuery = q.Encode()
 			location = u.String()
 		}
 	}
