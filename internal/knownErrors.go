@@ -9,6 +9,7 @@ var (
 	ErrEmailIsTaken                 = errors.New("email is taken")
 	ErrPasswordIncorrect            = errors.New("password is incorrect")
 	ErrChannelNotFound              = errors.New("channel not found")
+	ErrMemberNotFound               = errors.New("member not found")
 	ErrFieldVerificationNotFound    = errors.New("field verification not found")
 	ErrFieldVerificationCodeInvalid = errors.New("field verification code invalid")
 	ErrUnsupportedValidationField   = errors.New("unsupported verification field")

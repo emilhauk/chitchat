@@ -26,6 +26,11 @@ func (s Chat) Get(channelUUID string, user model.User) (model.Channel, error) {
 	if err != nil {
 		return channel, errors.Wrapf(err, "failed to load channel=%s", channelUUID)
 	}
+	member, err := s.channelManager.GetMemberInfo(channelUUID, user.UUID)
+	if err != nil {
+		return channel, err
+	}
+	channel.IsCurrentUserAdmin = member.Role == model.RoleAdmin
 	messages, err := s.messageManager.FindMessagesForChannel(channelUUID)
 	if err != nil {
 		return channel, errors.Wrapf(err, "failed to load messages for channel=%s", channelUUID)
@@ -36,6 +41,18 @@ func (s Chat) Get(channelUUID string, user model.User) (model.Channel, error) {
 		return channel, errors.Wrapf(err, "failed to enhance messages for channel=%s", channelUUID)
 	}
 	return channel, nil
+}
+
+func (s Chat) AcceptInvitation(invitationCode, userUUID string) error {
+	channel, err := s.channelManager.FindByUUID(invitationCode)
+	if err != nil {
+		return err
+	}
+	user, err := s.userManager.FindByUUID(userUUID)
+	if err != nil {
+		return err
+	}
+	return s.channelManager.AddMember(channel, user, "")
 }
 
 func (s Chat) enhanceMessages(messages []model.Message, user model.User) error {

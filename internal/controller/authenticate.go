@@ -16,14 +16,18 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 	log := log.With().Any("action", "CheckUsername").Logger()
 	err := r.ParseForm()
 	if err != nil {
-		app.Redirect(w, r, "/error/internal-server-error")
+		app.Redirect(w, r, getRequestedUrlOrDefault(r, "/error/internal-server-error"))
 		return
+	}
+	qs := ""
+	if r.URL.Query().Has("requested-url") {
+		qs = "?" + r.URL.RawQuery
 	}
 
 	email := strings.ToLower(r.FormValue("email"))
 	if _, err = mail.ParseAddress(email); err != nil {
 		// TODO return validation error
-		app.Redirect(w, r, "/")
+		app.Redirect(w, r, getRequestedUrlOrDefault(r, "/"))
 		return
 	}
 
@@ -32,13 +36,15 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, app.ErrUserNotFound) {
 		verification, err := registerService.Start(email)
 		if err != nil {
-			app.Redirect(w, r, "/error/internal-server-error")
+			app.Redirect(w, r, getRequestedUrlOrDefault(r, "/error/internal-server-error"))
 			return
 		}
+
 		err = templates.ExecuteTemplate(w, "register", map[string]any{
 			"RegisterSession":          verification.UUID,
 			"RequireEmailVerification": config.Mail.Enabled,
 			"Email":                    email,
+			"QueryString":              qs,
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to render registration form")
@@ -47,11 +53,12 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to lookup user by email=%s", email)
-		app.Redirect(w, r, "/error/internal-server-error")
+		app.Redirect(w, r, getRequestedUrlOrDefault(r, "/error/internal-server-error"))
 		return
 	}
 	err = templates.ExecuteTemplate(w, "login", map[string]any{
-		"Email": user.Email,
+		"Email":       user.Email,
+		"QueryString": qs,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to render login form")
@@ -78,7 +85,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		app.Redirect(w, r, "/error/internal-server-error")
 		return
 	}
-	app.Redirect(w, r, "/im")
+	app.Redirect(w, r, getRequestedUrlOrDefault(r, "/im"))
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +127,16 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.Redirect(w, r, "/im?status=register-success")
+	app.Redirect(w, r, getRequestedUrlOrDefault(r, "/im?status=register-success"))
+}
+
+func getRequestedUrlOrDefault(r *http.Request, defaultUrl string) string {
+	requestedUrl := r.URL.Query().Get("requested-url")
+	log.Debug().Msgf("%s\n%s", r.URL, requestedUrl)
+	if requestedUrl != "" {
+		return requestedUrl
+	}
+	return defaultUrl
 }
 
 func createAndSetSessionCookie(w http.ResponseWriter, domain, userUUID string) error {

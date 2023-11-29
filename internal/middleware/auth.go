@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
+	"github.com/emilhauk/chitchat/config"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/emilhauk/chitchat/internal/model"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -35,18 +38,22 @@ func (m Auth) RequireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := m.resolveUser(r)
 		if err != nil {
+			u := url.URL{Path: "/"}
+			q := u.Query()
+			q.Add("requested-url", fmt.Sprintf("%s%s", config.App.PublicURL, r.URL))
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
-				app.Redirect(w, r, "/")
 			case errors.Is(err, app.ErrSessionNotFound):
-				app.Redirect(w, r, "/?reason=invalid-session")
+				q.Add("reason", "invalid-session")
 			case errors.Is(err, app.ErrUserNotFound):
-				app.Redirect(w, r, "/?reason=user-deleted")
+				q.Add("reason", "user-deleted")
 			default:
 				log.Error().Err(err).Msg("Unknown error establishing user login state")
-				app.Redirect(w, r, "/error/internal-server-error")
+				u.Path = "/error/internal-server-error"
 			}
 			log.Debug().Err(err).Msg("Authorization failed.")
+			u.RawQuery = q.Encode()
+			app.Redirect(w, r, u.String())
 			return
 		}
 		log.Debug().Any("user_uuid", user.UUID).Msg("User logged in.")

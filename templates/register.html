@@ -1,6 +1,6 @@
 {{define "register"}}
 <p>Register</p>
-<form class="gain-access" action="/auth/register" method="post" hx-post="/auth/register" hx-swap="outerHTML">
+<form class="gain-access" action="/auth/register{{.QueryString}}" method="post" hx-post="/auth/register{{.QueryString}}" hx-swap="outerHTML">
     <input type="hidden" name="register-session" value="{{.RegisterSession}}" autocomplete="off">
     <label>
         <input type="email" name="email" value="{{.Email}}" placeholder="Email" readonly>
@@ -11,6 +11,6 @@
     <label>
         <input type="password" name="password" placeholder="Password" autocomplete="off" required minlength="5">
     </label>
-    <a href="/" hx-get="/" hx-push-url="true" hx-target="main" hx-swap="outerHTML">&lt; Back</a><button>Register</button>
+    <a href="/{{.QueryString}}" hx-get="/{{.QueryString}}" hx-push-url="true" hx-target="main" hx-swap="outerHTML">&lt; Back</a><button>Register</button>
 </form>
 {{end}}
