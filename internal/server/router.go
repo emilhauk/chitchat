@@ -16,6 +16,11 @@ func NewRouter(authMiddleware internalMiddleware.Auth, sseBroker *sse.Broker) ht
 	r.Use(internalMiddleware.RequestLogger)
 	r.Use(sseBroker.Middleware)
 
+	r.Route("/error", func(r chi.Router) {
+		r.Get("/bad-request", controller.BadRequest)
+		r.Get("/internal-server-error", controller.InternalServerError)
+	})
+
 	r.Group(func(r chi.Router) {
 		r.Use(authMiddleware.RedirectIfLoggedIn("/im"))
 
