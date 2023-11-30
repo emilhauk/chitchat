@@ -27,5 +27,17 @@ services:
     environment:
       DB_HOSTNAME: db
       DB_PORT: 3306
+      DB_USERNAME: "chitchat"
+      DB_PASSWORD: "password" # wow, so creative
+
       # Set to anything, but "development" to get app out of dev-mode
+      # This disables debug-logging and pretty-printing of logs for now, but will,
+      # in time for 2.0, also change behaviour in regard to verification of email.
       MODE: "development"
+
+      # Set to what will be the public URL. May for instance be https://example.com
+      # PS: path is not supported. If you need such facilities, please create a PR :)
+      PUBLIC_URL: "http://localhost:3333"
+
+      # The port the server will be listening on
+      PORT: 3333
