@@ -5,6 +5,9 @@
         <a href="/im/channel/{{.UUID}}" hx-get="/im/channel/{{.UUID}}" hx-push-url="true" hx-target="main" hx-swap="innerHTML">
             <span>{{.Name}}</span>
         </a>
+        {{range .Messages}}
+            <p><small>{{.Content}}</small></p>
+        {{end}}
     </li>
     {{end}}
 </ul>

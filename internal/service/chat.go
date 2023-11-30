@@ -20,7 +20,7 @@ func NewChatService(userManager manager.User, channelManager manager.Channel, me
 	}
 }
 
-func (s Chat) Get(channelUUID string, user model.User) (model.Channel, error) {
+func (s Chat) GetChannel(channelUUID string, user model.User) (model.Channel, error) {
 	var channel model.Channel
 	channel, err := s.channelManager.GetChannelForUser(channelUUID, user.UUID)
 	if err != nil {
@@ -41,6 +41,40 @@ func (s Chat) Get(channelUUID string, user model.User) (model.Channel, error) {
 		return channel, errors.Wrapf(err, "failed to enhance messages for channel=%s", channelUUID)
 	}
 	return channel, nil
+}
+
+func (s Chat) GetChannelList(user model.User) ([]model.Channel, error) {
+	channels, err := s.channelManager.GetChannelListForUser(user.UUID)
+	if err != nil {
+		return channels, errors.Wrap(err, "failed to load channel list")
+	}
+	if len(channels) == 0 {
+		return channels, nil
+	}
+
+	channelUUIDs := make([]string, 0)
+	for i := range channels {
+		channelUUIDs = append(channelUUIDs, channels[i].UUID)
+	}
+
+	messages, err := s.messageManager.FindLastMessageForChannels(channelUUIDs...)
+	if err != nil {
+		return channels, errors.Wrap(err, "failed to load last message for channels")
+	}
+	err = s.enhanceMessages(messages, user)
+	if err != nil {
+		return channels, errors.Wrap(err, "failed to enhance messages for channels")
+	}
+
+	for i := range channels {
+		for _, m := range messages {
+			if channels[i].UUID == m.ChannelUUID {
+				channels[i].Messages = append(channels[i].Messages, m)
+			}
+		}
+	}
+
+	return channels, nil
 }
 
 func (s Chat) AcceptInvitation(invitationCode, userUUID string) error {
