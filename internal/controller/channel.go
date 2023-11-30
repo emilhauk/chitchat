@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"github.com/emilhauk/chitchat/config"
 	app "github.com/emilhauk/chitchat/internal"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -12,6 +13,10 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 	user := app.GetUserFromContextOrPanic(r.Context())
 	channelUUID := chi.URLParam(r, "channelUUID")
 	channel, err := chatService.Get(channelUUID, user)
+
+	if channel.IsCurrentUserAdmin {
+		channel.InvitationURL = fmt.Sprintf("%s/join/%s", config.App.PublicURL, channel.UUID)
+	}
 
 	if app.IsHtmxRequest(r) {
 		if err != nil {

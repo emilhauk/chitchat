@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -12,6 +13,7 @@ import (
 type AppConfig struct {
 	Port      int
 	Host      string
+	PublicURL string
 	InDevMode bool
 	Version   string
 	Location  *time.Location
@@ -64,6 +66,7 @@ func init() {
 		Location:  europeOslo,
 		InDevMode: envString("MODE", "development") == "development",
 	}
+	App.PublicURL = envString("PUBLIC_URL", fmt.Sprintf("http://%s:%d", App.Host, App.Port))
 
 	Database = DatabaseConfig{
 		Driver:   envString("DB_DRIVER", "mysql"),

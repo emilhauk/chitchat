@@ -1,6 +1,6 @@
 {{define "login"}}
 <p>Login</p>
-<form class="gain-access" action="/auth/login" method="post" hx-post="/auth/login" hx-swap="outerHTML">
+<form class="gain-access" action="/auth/login{{.QueryString}}" method="post" hx-post="/auth/login{{.QueryString}}" hx-swap="outerHTML">
     <label>
         <input type="email" name="email" placeholder="Email" value="{{.Email}}" autocomplete="off" required>
     </label>

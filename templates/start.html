@@ -1,5 +1,5 @@
 {{define "start"}}
-<form class="gain-access" action="/auth/check-username" method="post" hx-post="/auth/check-username" hx-swap="outerHTML">
+<form class="gain-access" action="/auth/check-username{{.QueryString}}" method="post" hx-post="/auth/check-username{{.QueryString}}" hx-swap="outerHTML">
     <label>
         <input type="email" name="email" placeholder="Email" autocomplete="current-username" required>
     </label>
