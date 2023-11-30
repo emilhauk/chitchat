@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"github.com/emilhauk/chitchat/config"
 	app "github.com/emilhauk/chitchat/internal"
 	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
@@ -9,7 +10,6 @@ import (
 	"net/http"
 	"net/mail"
 	"strings"
-	"time"
 )
 
 func CheckUsername(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +20,8 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	qs := ""
-	if r.URL.Query().Has("requested-url") {
-		qs = "?" + r.URL.RawQuery
+	if values := internalMiddleware.ExtractAllowedSearchParams(r.URL); len(values) > 0 {
+		qs = fmt.Sprintf("?%s", values.Encode())
 	}
 
 	email := strings.ToLower(r.FormValue("email"))
@@ -31,7 +31,7 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO should suppport non-hmx
+	// TODO should support non-hmx
 	user, err := userManager.FindByEmail(email)
 	if errors.Is(err, app.ErrUserNotFound) {
 		verification, err := registerService.Start(email)
@@ -63,29 +63,6 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to render login form")
 	}
-}
-
-func Login(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		app.Redirect(w, r, "/")
-		return
-	}
-	email := strings.ToLower(r.FormValue("email"))
-	plainPassword := r.FormValue("password")
-
-	user, err := userManager.FindByEmailAndPlainPassword(email, plainPassword)
-	if err != nil {
-		app.Redirect(w, r, "/")
-		return
-	}
-
-	err = createAndSetSessionCookie(w, r.URL.Host, user.UUID)
-	if err != nil {
-		app.Redirect(w, r, "/error/internal-server-error")
-		return
-	}
-	app.Redirect(w, r, getRequestedUrlOrDefault(r, "/im"))
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -120,70 +97,58 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = createAndSetSessionCookie(w, r.URL.Host, user.UUID)
+	session, err := sessionManager.CreateSession(user.UUID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create session")
 		app.Redirect(w, r, "/error/internal-server-error")
 		return
 	}
-
+	internalMiddleware.SetSessionCookie(w, r, session)
 	app.Redirect(w, r, getRequestedUrlOrDefault(r, "/im?status=register-success"))
 }
 
-func getRequestedUrlOrDefault(r *http.Request, defaultUrl string) string {
-	requestedUrl := r.URL.Query().Get("requested-url")
-	log.Debug().Msgf("%s\n%s", r.URL, requestedUrl)
-	if requestedUrl != "" {
-		return requestedUrl
-	}
-	return defaultUrl
-}
-
-func createAndSetSessionCookie(w http.ResponseWriter, domain, userUUID string) error {
-	session, err := sessionManager.CreateSession(userUUID)
+func Login(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
 	if err != nil {
-		return err
+		app.Redirect(w, r, "/")
+		return
 	}
+	email := strings.ToLower(r.FormValue("email"))
+	plainPassword := r.FormValue("password")
 
-	cookie := http.Cookie{
-		Name:     internalMiddleware.AuthCookie,
-		Value:    session.ID,
-		Path:     "/",
-		Domain:   domain,
-		Expires:  time.Now().Add(365 * 24 * time.Hour),
-		MaxAge:   0,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, &cookie)
-	return nil
-}
-
-func Logout(w http.ResponseWriter, r *http.Request) {
-	sessionID, err := internalMiddleware.GetSessionID(r)
+	user, err := userManager.FindByEmailAndPlainPassword(email, plainPassword)
 	if err != nil {
 		app.Redirect(w, r, "/")
 		return
 	}
 
-	err = sessionManager.Delete(sessionID)
+	session, err := sessionManager.CreateSession(user.UUID)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to Delete user session")
+		log.Error().Err(err).Msg("Failed to create session")
+		app.Redirect(w, r, "/error/internal-server-error")
+		return
 	}
+	internalMiddleware.SetSessionCookie(w, r, session)
+	app.Redirect(w, r, getRequestedUrlOrDefault(r, "/im"))
+}
 
-	cookie := http.Cookie{
-		Name:     internalMiddleware.AuthCookie,
-		Value:    "",
-		Path:     "/",
-		Domain:   r.URL.Host,
-		Expires:  time.Unix(0, 0),
-		MaxAge:   0,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
+func Logout(w http.ResponseWriter, r *http.Request) {
+	sessionID, err := internalMiddleware.GetSessionID(r)
+	if err == nil {
+		err = sessionManager.Delete(sessionID)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to Delete user session")
+		}
 	}
-	http.SetCookie(w, &cookie)
+	internalMiddleware.DeleteSessionCookie(w, r)
 
 	app.Redirect(w, r, "/")
+}
+
+func getRequestedUrlOrDefault(r *http.Request, defaultUrl string) string {
+	values := internalMiddleware.ExtractAllowedSearchParams(r.URL)
+	if requestedUrl := values.Get(internalMiddleware.RequestedURLParam); requestedUrl != "" {
+		return requestedUrl
+	}
+	return defaultUrl
 }

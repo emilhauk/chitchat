@@ -38,6 +38,18 @@ func (m Session) CreateSession(userUUID string) (model.Session, error) {
 	return session, nil
 }
 
+func (m Session) FindByIdAndMarkSeen(id string) (model.Session, error) {
+	session, err := m.FindByID(id)
+	if err == nil {
+		go func() {
+			if err := m.SetLastSeenAt(id, time.Now()); err != nil {
+				log.Error().Err(err).Msgf("Failed to mark session=%s seen", id)
+			}
+		}()
+	}
+	return session, err
+}
+
 func (m Session) FindByID(id string) (model.Session, error) {
 	return m.sessionBackend.FindByID(id)
 }

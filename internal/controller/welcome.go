@@ -1,13 +1,15 @@
 package controller
 
 import (
+	"fmt"
+	internalMiddleware "github.com/emilhauk/chitchat/internal/middleware"
 	"net/http"
 )
 
 func Welcome(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{}
-	if r.URL.Query().Has("requested-url") {
-		data["QueryString"] = "?" + r.URL.RawQuery
+	if values := internalMiddleware.ExtractAllowedSearchParams(r.URL); len(values) > 0 {
+		data["QueryString"] = fmt.Sprintf("?%s", values.Encode())
 	}
 	_ = templates.ExecuteTemplate(w, "welcome", data)
 }
