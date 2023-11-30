@@ -12,7 +12,7 @@ import (
 func GetChannel(w http.ResponseWriter, r *http.Request) {
 	user := app.GetUserFromContextOrPanic(r.Context())
 	channelUUID := chi.URLParam(r, "channelUUID")
-	channel, err := chatService.Get(channelUUID, user)
+	channel, err := chatService.GetChannel(channelUUID, user)
 
 	if channel.IsCurrentUserAdmin {
 		channel.InvitationURL = fmt.Sprintf("%s/join/%s", config.App.PublicURL, channel.UUID)
@@ -31,14 +31,15 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 		}
 		_ = templates.ExecuteTemplate(w, "channel", channel)
 	} else {
-		channels, listErr := channelManager.GetChannelListForUser(user.UUID)
+		channels, listErr := chatService.GetChannelList(user)
 		data := map[string]any{
 			"User":     user,
 			"Channels": channels,
 			"Channel":  channel,
 		}
 		if listErr != nil {
-			_ = templates.ExecuteTemplate(w, "error-page", map[string]any{"Code": 500})
+			log.Error().Err(listErr).Msg("Failed to load channel list")
+			app.Redirect(w, r, "/error/internal-server-error")
 			return
 		}
 		if err != nil {

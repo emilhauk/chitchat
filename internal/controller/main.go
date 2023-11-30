@@ -7,14 +7,15 @@ import (
 
 func Main(w http.ResponseWriter, r *http.Request) {
 	user := app.GetUserFromContextOrPanic(r.Context())
-	channels, err := channelManager.GetChannelListForUser(user.UUID)
+	channels, err := chatService.GetChannelList(user)
 	data := map[string]any{
 		"User":     user,
 		"Channels": channels,
 	}
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to get channel list for user=%s", user.UUID)
-		data["ErrorMain"] = map[string]any{"Code": 500, "Message": "Failed to load channel list please try again later."}
+		app.Redirect(w, r, "/error/internal-server-error")
+		return
 	}
 	_ = templates.ExecuteTemplate(w, "chat", data)
 }

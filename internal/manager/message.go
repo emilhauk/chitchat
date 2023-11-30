@@ -9,6 +9,7 @@ import (
 type MessageBackend interface {
 	Create(channelUUID string, message model.Message) error
 	FindForChannel(channelUUID string, limit, offset int32) ([]model.Message, error)
+	FindLastMessageForChannels(channelUUIDs ...string) ([]model.Message, error)
 }
 
 type Message struct {
@@ -33,4 +34,8 @@ func (m Message) Send(channel model.Channel, message model.Message) (model.Messa
 
 func (m Message) FindMessagesForChannel(channelUUID string) ([]model.Message, error) {
 	return m.messageBackend.FindForChannel(channelUUID, 100, 0)
+}
+
+func (m Message) FindLastMessageForChannels(channelUUIDs ...string) ([]model.Message, error) {
+	return m.messageBackend.FindLastMessageForChannels(channelUUIDs...)
 }
