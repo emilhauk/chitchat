@@ -20,7 +20,13 @@
     {{end}}
 </section>
 <div>
-    <form class="write-box" action="/im/channel/{{.UUID}}/message" method="post" hx-post="/im/channel/{{.UUID}}/message" hx-target="main section" hx-swap="beforeend">
+    <form class="write-box"
+          action="/im/channel/{{.UUID}}/message"
+          method="post" hx-post="/im/channel/{{.UUID}}/message"
+          hx-target="main section"
+          hx-swap="beforeend"
+          hx-on::after-request="if(event.detail.successful) this.reset()"
+    >
         <label for="write-message">
             <input type="text" id="write-message" name="message" placeholder="Type your message here...">
         </label>
