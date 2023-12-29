@@ -40,7 +40,7 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = templates.ExecuteTemplate(w, "register", map[string]any{
+		err = tmpl.ExecuteTemplate(w, "register", map[string]any{
 			"RegisterSession":          verification.UUID,
 			"RequireEmailVerification": config.Mail.Enabled,
 			"Email":                    email,
@@ -56,7 +56,7 @@ func CheckUsername(w http.ResponseWriter, r *http.Request) {
 		app.Redirect(w, r, getRequestedUrlOrDefault(r, "/error/internal-server-error"))
 		return
 	}
-	err = templates.ExecuteTemplate(w, "login", map[string]any{
+	err = tmpl.ExecuteTemplate(w, "login", map[string]any{
 		"Email":       user.Email,
 		"QueryString": qs,
 	})

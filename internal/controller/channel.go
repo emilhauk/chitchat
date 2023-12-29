@@ -22,14 +22,14 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			switch {
 			case errors.Is(err, app.ErrChannelNotFound):
-				_ = templates.ExecuteTemplate(w, "error-main", map[string]any{"Code": 404, "Message": "Chat not found."})
+				_ = tmpl.ExecuteTemplate(w, "error-main", map[string]any{"Code": 404, "Message": "Chat not found."})
 			default:
 				log.Error().Err(err).Msgf("Failed to load channel=%s for user=%s", channelUUID, user.UUID)
-				_ = templates.ExecuteTemplate(w, "error-main", map[string]any{"Code": 500})
+				_ = tmpl.ExecuteTemplate(w, "error-main", map[string]any{"Code": 500})
 			}
 			return
 		}
-		_ = templates.ExecuteTemplate(w, "channel", channel)
+		_ = tmpl.ExecuteTemplate(w, "channel", channel)
 	} else {
 		channels, listErr := chatService.GetChannelList(user)
 		data := map[string]any{
@@ -51,7 +51,7 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 				data["ErrorMain"] = map[string]any{"Code": 500}
 			}
 		}
-		err = templates.ExecuteTemplate(w, "chat", data)
+		err = tmpl.ExecuteTemplate(w, "chat", data)
 		if err != nil {
 			log.Warn().Err(err).Send()
 		}
@@ -61,7 +61,7 @@ func GetChannel(w http.ResponseWriter, r *http.Request) {
 func NewChannelForm(w http.ResponseWriter, r *http.Request) {
 	user := app.GetUserFromContextOrPanic(r.Context())
 	if app.IsHtmxRequest(r) {
-		_ = templates.ExecuteTemplate(w, "new-channel-form", map[string]any{})
+		_ = tmpl.ExecuteTemplate(w, "new-channel-form", map[string]any{})
 	} else {
 		channels, listErr := channelManager.GetChannelListForUser(user.UUID)
 		data := map[string]any{
@@ -70,10 +70,10 @@ func NewChannelForm(w http.ResponseWriter, r *http.Request) {
 			"ShowNewChannelForm": true,
 		}
 		if listErr != nil {
-			_ = templates.ExecuteTemplate(w, "error-page", map[string]any{"Code": 500})
+			_ = tmpl.ExecuteTemplate(w, "error-page", map[string]any{"Code": 500})
 			return
 		}
-		_ = templates.ExecuteTemplate(w, "chat", data)
+		_ = tmpl.ExecuteTemplate(w, "chat", data)
 	}
 }
 
