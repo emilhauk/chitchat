@@ -51,7 +51,7 @@ func main() {
 	controller.ProvideServices(chatService, registerService)
 
 	authMiddleware := internalMiddleware.NewAuthMiddleware(userManager, sessionManager)
-	sseBroker := sse.NewBroker(config.Logger)
+	sseBroker := sse.NewBroker(config.Logger, chatService)
 	router := server.NewRouter(authMiddleware, sseBroker)
 
 	server.Start(ctx, router)

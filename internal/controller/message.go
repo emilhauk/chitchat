@@ -38,19 +38,20 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func(message model.Message) {
+	go func(channel model.Channel, message model.Message) {
 		message.Direction = model.DirectionIn
+
 		buf := bytes.Buffer{}
 		err = tmpl.ExecuteTemplate(&buf, "message", message)
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to execute template")
 			return
 		}
-		err := sse.PublishUsingBrokerInContext(r.Context(), sse.NewEvent("message", channelUUID, message.Sender.UUID, buf.String()))
+		err := sse.PublishUsingBrokerInContext(r.Context(), sse.NewEvent("message", channel, message, buf.String()))
 		if err != nil {
-			log.Error().Err(err).Msgf("Failed to publish event")
+			log.Error().Err(err).Msgf("Failed to publish message event")
 		}
-	}(message)
+	}(channel, message)
 
 	if app.IsHtmxRequest(r) {
 		err = tmpl.ExecuteTemplate(w, "message", message)

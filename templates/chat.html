@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/public/styles.css">
 </head>
 <body>
-    <nav>
+    <nav hx-ext="sse" sse-connect="/im/channel/stream" sse-swap="channelList" hx-target=".channel-list" hx-swap="outerHTML">
         <span>Channels</span>
         {{template "channel-list" .Channels}}
         {{with .User}}
