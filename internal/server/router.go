@@ -45,9 +45,10 @@ func NewRouter(authMiddleware internalMiddleware.Auth, sseBroker *sse.Broker) ht
 		r.Get("/", controller.Main)
 
 		r.Route("/channel", func(r chi.Router) {
+			r.Get("/stream", sseBroker.ServeHTTPForChannelList)
 			r.Route("/{channelUUID}", func(r chi.Router) {
 				r.Get("/", controller.GetChannel)
-				r.Get("/stream", sseBroker.ServeHTTP)
+				r.Get("/stream", sseBroker.ServeHTTPForChannel)
 				r.Post("/message", controller.SendMessage)
 			})
 		})

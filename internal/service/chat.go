@@ -89,6 +89,14 @@ func (s Chat) AcceptInvitation(invitationCode, userUUID string) error {
 	return s.channelManager.AddMember(channel, user, "")
 }
 
+func (s Chat) IsMemberOfChannel(channelUUID, userUUID string) (bool, error) {
+	_, err := s.channelManager.GetMemberInfo(channelUUID, userUUID)
+	if err != nil {
+		return false, err
+	}
+	return true, err
+}
+
 func (s Chat) enhanceMessages(messages []model.Message, user model.User) error {
 	userUUIDs := make([]string, 0)
 	for i := range messages {
