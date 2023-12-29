@@ -11,5 +11,5 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	if values := internalMiddleware.ExtractAllowedSearchParams(r.URL); len(values) > 0 {
 		data["QueryString"] = fmt.Sprintf("?%s", values.Encode())
 	}
-	_ = templates.ExecuteTemplate(w, "welcome", data)
+	_ = tmpl.ExecuteTemplate(w, "welcome", data)
 }

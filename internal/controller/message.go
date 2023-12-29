@@ -41,7 +41,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	go func(message model.Message) {
 		message.Direction = model.DirectionIn
 		buf := bytes.Buffer{}
-		err = templates.ExecuteTemplate(&buf, "message", message)
+		err = tmpl.ExecuteTemplate(&buf, "message", message)
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to execute template")
 			return
@@ -53,7 +53,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	}(message)
 
 	if app.IsHtmxRequest(r) {
-		err = templates.ExecuteTemplate(w, "message", message)
+		err = tmpl.ExecuteTemplate(w, "message", message)
 	} else {
 		app.Redirect(w, r, fmt.Sprintf("/im/channel/%s", channelUUID))
 	}

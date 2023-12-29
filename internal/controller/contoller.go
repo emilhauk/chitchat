@@ -4,13 +4,13 @@ import (
 	"github.com/emilhauk/chitchat/config"
 	"github.com/emilhauk/chitchat/internal/manager"
 	"github.com/emilhauk/chitchat/internal/service"
-	"html/template"
+	"github.com/emilhauk/chitchat/templates"
 )
 
 var (
-	log       = config.Logger
-	err       error
-	templates *template.Template
+	log = config.Logger
+
+	tmpl = templates.Templates
 
 	userManager     manager.User
 	sessionManager  manager.Session
@@ -19,13 +19,6 @@ var (
 	chatService     service.Chat
 	registerService service.Register
 )
-
-func init() {
-	templates, err = template.ParseGlob("./templates/**")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to parse templates")
-	}
-}
 
 func ProvideManagers(um manager.User, sm manager.Session, cm manager.Channel, mm manager.Message) {
 	userManager = um

@@ -17,5 +17,5 @@ func Main(w http.ResponseWriter, r *http.Request) {
 		app.Redirect(w, r, "/error/internal-server-error")
 		return
 	}
-	_ = templates.ExecuteTemplate(w, "chat", data)
+	_ = tmpl.ExecuteTemplate(w, "chat", data)
 }
