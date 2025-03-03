@@ -1,6 +1,7 @@
 module github.com/emilhauk/chitchat
 
 go 1.21
+toolchain go1.23.6
 
 require (
 	github.com/go-chi/chi/v5 v5.2.0
@@ -9,12 +10,12 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.35.0
 )
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
